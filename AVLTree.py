@@ -44,7 +44,7 @@ class AVLNode(object):
         """
         if not self.is_real_node():
             return False
-        return  self.left.is_real_node() and self.right.is_real_node()
+        return  not(self.left.is_real_node()) and not(self.right.is_real_node())
 
 
     def get_height(self):
@@ -130,7 +130,7 @@ class AVLTree(object):
         @returns: a tuple (x, search_time) where x is the node corresponding to key (or None if not found)
         and search_time is the search time, as defined and explained in the assignment.
         """
-        search_time = 1
+        search_time = 0
         curr = self.root
 
         if not curr.is_real_node():
@@ -162,32 +162,35 @@ class AVLTree(object):
         and the other 3 return values are as defined and explained in the assignment.
         """
 
-        search_time = 1
+        search_time = 0
         rotations = 0
         height_changes = 0
         curr = self.root
         new_node = AVLNode(key, val, left=self.virtual_node, right=self.virtual_node, parent=None)
 
         if curr is None:
-            print("inserting root")
             self.root = new_node
-            print(f"added node with key {new_node.key} and value {new_node.value}")
             self.tree_size += 1
             return new_node, search_time, rotations, height_changes
 
-        while not curr.is_leaf():
+        parent = None
+
+        while curr.is_real_node():
             search_time += 1
+            parent = curr
             if key < curr.key:
                 curr = curr.left
             else: 
                 curr = curr.right
+
         #reached a leaf, insert the new node as a child of curr
         search_time += 1
-        self.set_parent(curr, new_node)
-        if key < curr.key:
-            curr.left = new_node
+        self.set_parent(new_node, parent)
+        if key < parent.key:
+            self.set_left(parent, new_node)
         else:
-            curr.right = new_node
+            self.set_right(parent, new_node)
+
         self.tree_size += 1
         return new_node, search_time, rotations, height_changes        
 
